@@ -18,5 +18,19 @@ services:
       timeout: 3s
       retries: 10
 
+  jenkins:                           # CI server (chạy pipeline trong Jenkinsfile)
+    build:
+      context: ./docker/jenkins      # dùng Dockerfile cài sẵn Maven + JDK 21
+    container_name: aws-jenkins
+    ports:
+      - "8080:8080"                  # Web UI  (services đang dùng 8081/8082)
+      - "50000:50000"                # cổng kết nối cho inbound agents
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=true"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    restart: unless-stopped
+
 volumes:
   pgdata:
+  jenkins_home:
