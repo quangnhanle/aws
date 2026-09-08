@@ -228,13 +228,12 @@ pipeline {
         }
     }
 
-     post {
-         success {
-             echo 'CI PASSED'
-         }
-         failure {
-             echo 'CI FAILED'
-         }
-     }
+    post {
+        success {
+            echo 'CI PASSED'
+        }
+        failure {
+            echo 'CI FAILED'
+        }
     }
 }
