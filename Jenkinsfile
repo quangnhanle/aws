@@ -40,6 +40,10 @@ pipeline {
             steps {
                 script {
                     def changedFiles = ''
+                    echo "environment"
+                    echo env.CHANGE_TARGET
+                    echo env.GIT_PREVIOUS_SUCCESSFUL_COMMIT
+                    echo env.GIT_PREVIOUS_COMMIT
                     if (env.CHANGE_TARGET) {
                         echo "Pull Request target: ${env.CHANGE_TARGET}"
                         sh """
