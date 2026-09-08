@@ -1,23 +1,3 @@
-@NonCPS
-Map analyzeChanges(String changedFiles) {
-    def files = changedFiles.split('\n')*.trim().findAll { it }
-
-    boolean commonChanged = files.any {
-        it == 'pom.xml' ||
-        it == 'Jenkinsfile' ||
-        it == 'docker-compose.yml' ||
-        it.startsWith('.mvn/')
-    }
-    boolean productChanged = files.any { it.startsWith('product-service/') }
-    boolean orderChanged   = files.any { it.startsWith('order-service/') }
-
-    if (commonChanged) {
-        productChanged = true
-        orderChanged = true
-    }
-    return [product: productChanged, order: orderChanged]
-}
-
 pipeline {
     agent any
     options {
@@ -40,10 +20,6 @@ pipeline {
             steps {
                 script {
                     def changedFiles = ''
-                    echo "environment"
-                    echo env.CHANGE_TARGET
-                    echo env.GIT_PREVIOUS_SUCCESSFUL_COMMIT
-                    echo env.GIT_PREVIOUS_COMMIT
                     if (env.CHANGE_TARGET) {
                         echo "Pull Request target: ${env.CHANGE_TARGET}"
                         sh """
@@ -87,9 +63,31 @@ pipeline {
                     """
 
                     if (changedFiles) {
-                        def result = analyzeChanges(changedFiles)
-                        env.PRODUCT_CHANGED = result.product.toString()
-                        env.ORDER_CHANGED   = result.order.toString()
+                        def files = changedFiles.tokenize('\n')
+                        echo "Parsed ${files.size()} file(s): ${files}"
+
+                        boolean commonChanged = false
+                        boolean productChanged = false
+                        boolean orderChanged = false
+
+                        for (line in files) {
+                            def f = line.trim()
+                            if (f == 'pom.xml' || f == 'Jenkinsfile' ||
+                                f == 'docker-compose.yml' || f.startsWith('.mvn/')) {
+                                commonChanged = true
+                            }
+                            if (f.startsWith('product-service/')) productChanged = true
+                            if (f.startsWith('order-service/'))   orderChanged   = true
+                        }
+
+                        if (commonChanged) {
+                            productChanged = true
+                            orderChanged = true
+                        }
+
+                        echo "commonChanged=${commonChanged} product=${productChanged} order=${orderChanged}"
+                        env.PRODUCT_CHANGED = productChanged.toString()
+                        env.ORDER_CHANGED = orderChanged.toString()
                     }
                     echo """
                         Services to build:
