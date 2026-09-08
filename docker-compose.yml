@@ -1,0 +1,22 @@
+# Hạ tầng local (Phase 0)
+# Chạy:  docker compose up -d   |   Tắt: docker compose down (-v để xoá data)
+services:
+  postgres:                          # 1 instance chứa 2 DB: orders_db + products_db
+    image: postgres:16
+    container_name: aws-postgres
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports: ["5433:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

@@ -1,0 +1,61 @@
+# ---- Maven ----
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.properties
+
+# ---- Compiled output ----
+*.class
+
+# ---- Packaged artifacts ----
+*.jar
+*.war
+*.ear
+*.nar
+!.mvn/wrapper/maven-wrapper.jar
+
+# ---- Spring Boot ----
+# Local/secret config overrides — keep committed application.properties, ignore local ones
+application-local.properties
+application-local.yml
+application-local.yaml
+*.env
+.env
+
+# ---- Logs ----
+*.log
+logs/
+
+# ---- IntelliJ IDEA ----
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# ---- Eclipse ----
+.classpath
+.project
+.settings/
+bin/
+
+# ---- VS Code ----
+.vscode/
+
+# ---- NetBeans ----
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- Java misc ----
+*.log.*
+hs_err_pid*
+replay_pid*

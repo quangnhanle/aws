@@ -1,0 +1,45 @@
+# ===== Build output =====
+# Với multi-stage build thì không cần target/ trong context.
+# Nếu dùng cách copy jar có sẵn, hãy XÓA dòng target/ dưới đây.
+target/
+!target/*.jar
+
+# ===== Maven =====
+.mvn/
+mvnw
+mvnw.cmd
+
+# ===== IDE / editor =====
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+
+# ===== Git =====
+.git/
+.gitignore
+.gitattributes
+
+# ===== Docker =====
+Dockerfile
+docker/
+.dockerignore
+docker-compose*.yml
+
+# ===== Logs & temp =====
+*.log
+logs/
+tmp/
+*.tmp
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Docs =====
+README.md
+*.md
