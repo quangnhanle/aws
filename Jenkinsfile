@@ -4,10 +4,6 @@ pipeline {
         skipDefaultCheckout(true)
         timestamps()
     }
-    environment {
-        PRODUCT_CHANGED = 'false'
-        ORDER_CHANGED = 'false'
-    }
 
     stages {
         stage('Checkout') {
@@ -19,6 +15,8 @@ pipeline {
         stage('Detect changes') {
             steps {
                 script {
+                    env.PRODUCT_CHANGED = 'false'
+                    env.ORDER_CHANGED = 'false'
                     def changedFiles = ''
                     if (env.CHANGE_TARGET) {
                         echo "Pull Request target: ${env.CHANGE_TARGET}"
