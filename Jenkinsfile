@@ -1,3 +1,23 @@
+@NonCPS
+Map analyzeChanges(String changedFiles) {
+    def files = changedFiles.split('\n')*.trim().findAll { it }
+
+    boolean commonChanged = files.any {
+        it == 'pom.xml' ||
+        it == 'Jenkinsfile' ||
+        it == 'docker-compose.yml' ||
+        it.startsWith('.mvn/')
+    }
+    boolean productChanged = files.any { it.startsWith('product-service/') }
+    boolean orderChanged   = files.any { it.startsWith('order-service/') }
+
+    if (commonChanged) {
+        productChanged = true
+        orderChanged = true
+    }
+    return [product: productChanged, order: orderChanged]
+}
+
 pipeline {
     agent any
     options {
@@ -19,6 +39,7 @@ pipeline {
         stage('Detect changes') {
             steps {
                 script {
+                    def changedFiles = ''
                     if (env.CHANGE_TARGET) {
                         echo "Pull Request target: ${env.CHANGE_TARGET}"
                         sh """
@@ -62,34 +83,9 @@ pipeline {
                     """
 
                     if (changedFiles) {
-
-                        def files = changedFiles.split('\n')
-
-                        boolean commonChanged = files.any {
-                            it == 'pom.xml' ||
-                            it == 'Jenkinsfile' ||
-                            it == 'docker-compose.yml' ||
-                            it.startsWith('.mvn/')
-                        }
-
-                        boolean productChanged = files.any {
-                            it.startsWith('product-service/')
-                        }
-
-                        boolean orderChanged = files.any {
-                            it.startsWith('order-service/')
-                        }
-
-                        if (commonChanged) {
-                            productChanged = true
-                            orderChanged = true
-                        }
-
-                        env.PRODUCT_CHANGED =
-                            productChanged.toString()
-
-                        env.ORDER_CHANGED =
-                            orderChanged.toString()
+                        def result = analyzeChanges(changedFiles)
+                        env.PRODUCT_CHANGED = result.product.toString()
+                        env.ORDER_CHANGED   = result.order.toString()
                     }
                     echo """
                         Services to build:
