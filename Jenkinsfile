@@ -56,7 +56,7 @@ pipeline {
                     }
 
                     echo """
-                    Changed files :
+                    Changed files:
                     ${changedFiles}
                     """
 
