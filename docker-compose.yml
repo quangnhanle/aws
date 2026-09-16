@@ -27,8 +27,10 @@ services:
       - "50000:50000"                # cổng kết nối cho inbound agents
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=true"
+    user: root                       # để truy cập /var/run/docker.sock của host
     volumes:
       - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock   # Docker-outside-of-Docker
     restart: unless-stopped
 
 volumes:
