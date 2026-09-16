@@ -3,10 +3,10 @@ FROM jenkins/jenkins:lts-jdk21
 
 USER root
 
-# Maven để gọi `mvn` trực tiếp; docker.io cung cấp Docker CLI (client) để `docker build/push`.
+# Maven để gọi `mvn` trực tiếp; docker-cli và docker-buildx dùng để build/push image.
 # Daemon dùng của host qua socket mount (Docker-outside-of-Docker), không chạy daemon trong container.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends maven docker.io \
+    && apt-get install -y --no-install-recommends maven docker-cli docker-buildx \
     && rm -rf /var/lib/apt/lists/*
 
 USER jenkins
