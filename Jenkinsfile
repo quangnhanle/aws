@@ -1,3 +1,46 @@
+// ==== Cấu hình Docker Hub ====
+// Đổi thành namespace (username/organization) Docker Hub của bạn.
+def DOCKERHUB_NS = 'nhanleeq'
+// ID của credential kiểu "Username with password" đã tạo trong Jenkins
+// (password nên dùng Docker Hub Access Token, không dùng mật khẩu tài  khoản).
+def DOCKERHUB_CRED = 'dockerhub'
+
+// Build image từ jar CI đã đóng gói, tag = <short-commit> + latest, rồi push Docker Hub.
+def dockerBuildPush(String service, String ns, String credId) {
+    // env.GIT_COMMIT = commit đang build = commit cuối cùng của branch.
+    def sha = env.GIT_COMMIT.take(7)
+    def image = "${ns}/${service}"
+    // Mỗi nhánh parallel dùng config riêng để login/logout không ảnh hưởng nhánh còn lại.
+    def dockerConfig = "${env.WORKSPACE}@tmp/docker-${service}"
+    withEnv(["DOCKER_CONFIG=${dockerConfig}"]) {
+        withCredentials([usernamePassword(
+                credentialsId: credId,
+                usernameVariable: 'DH_USER',
+                passwordVariable: 'DH_PASS')]) {
+            sh """
+                set -eu
+                mkdir -p "\$DOCKER_CONFIG"
+
+                cleanup() {
+                    docker logout >/dev/null 2>&1 || true
+                    rm -f "\$DOCKER_CONFIG/config.json"
+                }
+                trap cleanup EXIT
+
+                echo "\$DH_PASS" | docker login -u "\$DH_USER" --password-stdin
+                docker build \
+                    -f ${service}/docker/Dockerfile \
+                    -t ${image}:${sha} \
+                    -t ${image}:latest \
+                    ${service}
+                docker push ${image}:${sha}
+                docker push ${image}:latest
+            """
+        }
+    }
+    echo "Pushed ${image}:${sha} and ${image}:latest"
+}
+
 pipeline {
     agent any
     options {
@@ -220,6 +263,40 @@ pipeline {
                              fingerprint: true
                          )
                      }
+                }
+            }
+        }
+
+        stage('Docker Build & Push') {
+            parallel {
+                stage('Push Product Image') {
+                    when {
+                        expression {
+                            env.PRODUCT_CHANGED == 'true'
+                        }
+                    }
+                    steps {
+                        script {
+                            retry(3) {
+                                dockerBuildPush('product-service', DOCKERHUB_NS, DOCKERHUB_CRED)
+                            }
+                        }
+                    }
+                }
+
+                stage('Push Order Image') {
+                    when {
+                        expression {
+                            env.ORDER_CHANGED == 'true'
+                        }
+                    }
+                    steps {
+                        script {
+                            retry(3) {
+                                dockerBuildPush('order-service', DOCKERHUB_NS, DOCKERHUB_CRED)
+                            }
+                        }
+                    }
                 }
             }
         }
