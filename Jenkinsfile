@@ -2,7 +2,7 @@
 // Đổi thành namespace (username/organization) Docker Hub của bạn.
 def DOCKERHUB_NS = 'nhanleeq'
 // ID của credential kiểu "Username with password" đã tạo trong Jenkins
-// (password nên dùng Docker Hub Access Token, không dùng mật khẩu tài khoản).
+// (password nên dùng Docker Hub Access Token, không dùng mật khẩu tài  khoản).
 def DOCKERHUB_CRED = 'dockerhub'
 
 // Build image từ jar CI đã đóng gói, tag = <short-commit> + latest, rồi push Docker Hub.
