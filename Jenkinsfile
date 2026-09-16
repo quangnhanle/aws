@@ -277,7 +277,9 @@ pipeline {
                     }
                     steps {
                         script {
-                            dockerBuildPush('product-service', DOCKERHUB_NS, DOCKERHUB_CRED)
+                            retry(3) {
+                                dockerBuildPush('product-service', DOCKERHUB_NS, DOCKERHUB_CRED)
+                            }
                         }
                     }
                 }
@@ -290,7 +292,9 @@ pipeline {
                     }
                     steps {
                         script {
-                            dockerBuildPush('order-service', DOCKERHUB_NS, DOCKERHUB_CRED)
+                            retry(3) {
+                                dockerBuildPush('order-service', DOCKERHUB_NS, DOCKERHUB_CRED)
+                            }
                         }
                     }
                 }
